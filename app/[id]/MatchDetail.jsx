@@ -81,7 +81,7 @@ export default function MatchDetail({ match: initialMatch }) {
               <div className="space-y-2">
                 {match.scorers.map((scorer, idx) => (
                   <div key={idx} className="text-sm">
-                    <span className="text-gray-600">{scorer.minute}'</span>{" "}
+                    <span className="text-gray-600">{scorer.minute}&apos;</span>{" "}
                     {scorer.name} ({scorer.team}) - {scorer.type}
                   </div>
                 ))}
@@ -98,7 +98,7 @@ export default function MatchDetail({ match: initialMatch }) {
                   <h4 className="text-sm font-medium mb-2">{match.homeTeam}</h4>
                   {match.fouls.home.map((foul, idx) => (
                     <div key={idx} className="text-sm text-gray-600">
-                      {foul.minute}' - {foul.player}
+                      {foul.minute}&apos; - {foul.player}
                     </div>
                   ))}
                 </div>
@@ -120,7 +120,8 @@ export default function MatchDetail({ match: initialMatch }) {
                   <h4 className="text-sm font-medium mb-2">{match.homeTeam}</h4>
                   {match.freeKicks.home.map((fk, idx) => (
                     <div key={idx} className="text-sm text-gray-600">
-                      {fk.minute}' - {fk.player} {fk.scored ? "(⚽)" : "(✗)"}
+                      {fk.minute}&apos; - {fk.player}{" "}
+                      {fk.scored ? "(⚽)" : "(✗)"}
                     </div>
                   ))}
                 </div>
@@ -128,7 +129,8 @@ export default function MatchDetail({ match: initialMatch }) {
                   <h4 className="text-sm font-medium mb-2">{match.awayTeam}</h4>
                   {match.freeKicks.away.map((fk, idx) => (
                     <div key={idx} className="text-sm text-gray-600">
-                      {fk.minute}' - {fk.player} {fk.scored ? "(⚽)" : "(✗)"}
+                      {fk.minute}&apos; - {fk.player}{" "}
+                      {fk.scored ? "(⚽)" : "(✗)"}
                     </div>
                   ))}
                 </div>

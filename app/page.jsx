@@ -91,7 +91,8 @@ export default function Home() {
                         <div className="text-xs text-gray-600">
                           {match.scorers.map((scorer, idx) => (
                             <div key={idx}>
-                              {scorer.name} ({scorer.minute}') - {scorer.team}
+                              {scorer.name} ({scorer.minute}&apos;) -{" "}
+                              {scorer.team}
                             </div>
                           ))}
                         </div>
