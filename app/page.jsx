@@ -44,11 +44,8 @@ export default function Home() {
         ) : (
           <div className="grid gap-4">
             {matches.map((match) => (
-              <Link href={`/${match._id}`}>
-                <div
-                  key={match._id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-green-600"
-                >
+              <Link href={`/${match._id}`} key={match._id}>
+                <div className="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-green-600">
                   <div className="p-4">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm text-gray-600">

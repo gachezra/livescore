@@ -106,7 +106,7 @@ export default function MatchDetail({ match: initialMatch }) {
                   <h4 className="text-sm font-medium mb-2">{match.awayTeam}</h4>
                   {match.fouls.away.map((foul, idx) => (
                     <div key={idx} className="text-sm text-gray-600">
-                      {foul.minute}' - {foul.player}
+                      {foul.minute}&apos; - {foul.player}
                     </div>
                   ))}
                 </div>
