@@ -1,0 +1,171 @@
+// app/page.js
+import MatchesList from '@/components/MatchesList';
+import { Suspense } from 'react';
+import connectDB from '@/lib/mongodb';
+import Match from '@/models/Match';
+
+async function getMatches() {
+  await connectDB();
+  const currentDate = new Date();
+  
+  const matches = await Match.find().sort({ startTime: -1 });
+  
+  return matches.reduce((acc, match) => {
+    const matchStartTime = new Date(match.startTime);
+    const matchEndTime = new Date(match.endTime);
+    
+    if (currentDate >= matchStartTime && currentDate <= matchEndTime) {
+      acc.liveMatches.push(match);
+    } else {
+      acc.completedMatches.push(match);
+    }
+    return acc;
+  }, { liveMatches: [], completedMatches: [] });
+}
+
+export default async function Home() {
+  const matches = await getMatches();
+
+  return (
+    <main className="min-h-screen bg-gray-100">
+      <nav className="bg-black p-4">
+        <div className="container mx-auto">
+          <h1 className="text-white text-2xl font-bold">Live Scores</h1>
+        </div>
+      </nav>
+
+      <div className="container mx-auto py-6 px-4">
+        <Suspense fallback={<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto" />}>
+          <MatchesList initialMatches={matches} />
+        </Suspense>
+      </div>
+    </main>
+  );
+}
+
+// components/MatchesList.jsx
+'use client';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { format } from 'date-fns';
+
+export default function MatchesList({ initialMatches }) {
+  const [matches, setMatches] = useState(initialMatches);
+
+  useEffect(() => {
+    const fetchUpdates = async () => {
+      const response = await fetch('/api/matches');
+      const data = await response.json();
+      setMatches(data);
+    };
+
+    const interval = setInterval(fetchUpdates, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const MatchCard = ({ match, isLive }) => (
+    <Link href={`/${match._id}`} className="block">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-green-600 hover:shadow-lg transition-shadow">
+        <div className="p-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-600">
+              {format(new Date(match.startTime), 'HH:mm')}
+            </span>
+            {isLive && (
+              <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                Live
+              </span>
+            )}
+          </div>
+          
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 items-center">
+            <div className="text-right">
+              <h3 className="font-medium text-sm">{match.homeTeam}</h3>
+              <div className="text-xs text-gray-600">
+                Fouls: {match.matchStats.home.totalFouls}
+                <br />
+                FK: {match.matchStats.home.freeKicksScored}/{match.matchStats.home.freeKicksTaken}
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-xl font-bold">
+                {match.homeScore} - {match.awayScore}
+              </div>
+            </div>
+            
+            <div className="text-left">
+              <h3 className="font-medium text-sm">{match.awayTeam}</h3>
+              <div className="text-xs text-gray-600">
+                Fouls: {match.matchStats.away.totalFouls}
+                <br />
+                FK: {match.matchStats.away.freeKicksScored}/{match.matchStats.away.freeKicksTaken}
+              </div>
+            </div>
+          </div>
+
+          {match.scorers.slice(0, 2).map((scorer, idx) => (
+            <div key={idx} className="text-xs text-gray-600 mt-1">
+              ⚽ {scorer.name} ({scorer.minute}')
+            </div>
+          ))}
+          {match.scorers.length > 2 && (
+            <div className="text-xs text-gray-500 mt-1">
+              +{match.scorers.length - 2} more
+            </div>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+
+  return (
+    <div className="space-y-6">
+      {matches.liveMatches.length > 0 && (
+        <section>
+          <h2 className="text-lg font-semibold mb-3">Live Matches</h2>
+          <div className="grid gap-4">
+            {matches.liveMatches.map(match => (
+              <MatchCard key={match._id} match={match} isLive={true} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {matches.completedMatches.length > 0 && (
+        <section>
+          <h2 className="text-lg font-semibold mb-3">Completed Matches</h2>
+          <div className="grid gap-4">
+            {matches.completedMatches.map(match => (
+              <MatchCard key={match._id} match={match} isLive={false} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+// app/[id]/page.jsx
+
+// app/[id]/MatchDetail.jsx
+
+// app/api/matches/[id]/route.js
+import { NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import Match from '@/models/Match';
+
+export async function GET(request, { params }) {
+  try {
+    await connectDB();
+    const match = await Match.findById(params.id);
+    
+    if (!match) {
+      return NextResponse.json({ error: 'Match not found' }, { status: 404 });
+    }
+    
+    return NextResponse.json(match);
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

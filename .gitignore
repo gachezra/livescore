@@ -12,6 +12,9 @@
 # environs
 .env
 
+# misc
+.prac
+
 # next.js
 /.next/
 /out/
