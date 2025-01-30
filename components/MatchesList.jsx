@@ -2,23 +2,39 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
+import axios from "axios";
 
-export default function MatchesList({ initialMatches }) {
-  const [matches, setMatches] = useState(initialMatches);
+export default function MatchesList() {
+  const [matches, setMatches] = useState({
+    liveMatches: [],
+    completedMatches: [],
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUpdates = async () => {
-      const response = await fetch("/api/matches");
-      const data = await response.json();
-      setMatches(data);
+      try {
+        const res = await axios.get("/api/matches");
+        console.log("Matches: ", res.data);
+        setMatches(res.data);
+      } catch (error) {
+        console.error("Error fetching matches:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
+    fetchUpdates();
     const interval = setInterval(fetchUpdates, 30000);
     return () => clearInterval(interval);
   }, []);
 
+  if (loading) {
+    return <div className="text-center text-gray-600">Loading matches...</div>;
+  }
+
   const MatchCard = ({ match, isLive }) => (
-    <Link href={`/${match._id}`} className="block">
+    <Link href={`/${match._id}`} className="block text-black">
       <div className="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-green-600 hover:shadow-lg transition-shadow">
         <div className="p-4">
           <div className="flex justify-between items-center mb-2">
@@ -90,7 +106,9 @@ export default function MatchesList({ initialMatches }) {
 
       {matches.completedMatches.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold mb-3">Completed Matches</h2>
+          <h2 className="text-lg font-semibold mb-3 text-black">
+            Completed Matches
+          </h2>
           <div className="grid gap-4">
             {matches.completedMatches.map((match) => (
               <MatchCard key={match._id} match={match} isLive={false} />
