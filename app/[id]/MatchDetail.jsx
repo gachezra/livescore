@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function MatchDetail({ match: initialMatch }) {
   const [match, setMatch] = useState(initialMatch);
@@ -9,6 +11,7 @@ export default function MatchDetail({ match: initialMatch }) {
     const fetchUpdates = async () => {
       const response = await fetch(`/api/matches/${match._id}`);
       const data = await response.json();
+      console.log("Match data: ", data);
       setMatch(data);
     };
 
@@ -19,9 +22,18 @@ export default function MatchDetail({ match: initialMatch }) {
   }, [match._id, match.isActive]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 text-black">
       <div className="container mx-auto py-6 px-4">
         <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="absolute top-6 left-5">
+            <Link
+              href="/"
+              className="flex items-center space-x-2 bg-black text-white p-2 rounded-full hover:bg-red-600 transition"
+            >
+              <ChevronLeft size={20} />
+              <span className="hidden sm:inline">Back</span>
+            </Link>
+          </div>
           {/* Match Header */}
           <div className="text-center mb-6">
             <div className="text-sm text-gray-600 mb-2">
@@ -29,13 +41,17 @@ export default function MatchDetail({ match: initialMatch }) {
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
               <div className="text-right">
-                <h2 className="text-xl font-bold">{match.homeTeam}</h2>
+                <h2 className="text-xl font-bold text-black">
+                  {match.homeTeam}
+                </h2>
               </div>
-              <div className="text-3xl font-bold">
+              <div className="text-3xl font-bold text-black">
                 {match.homeScore} - {match.awayScore}
               </div>
               <div className="text-left">
-                <h2 className="text-xl font-bold">{match.awayTeam}</h2>
+                <h2 className="text-xl font-bold text-black">
+                  {match.awayTeam}
+                </h2>
               </div>
             </div>
           </div>

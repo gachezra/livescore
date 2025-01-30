@@ -60,4 +60,6 @@ const MatchSchema = new mongoose.Schema({
   endTime: Date,
 });
 
-module.exports = mongoose.model("Match", MatchSchema);
+const Match = mongoose.models.Match || mongoose.model("Match", MatchSchema);
+
+export default Match;

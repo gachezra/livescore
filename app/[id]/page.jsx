@@ -4,8 +4,9 @@ import Match from "@/models/matchModel";
 import MatchDetail from "./MatchDetail";
 
 export async function generateMetadata({ params }) {
+  const { id } = params; // Ensure correct destructuring
   await connectDB();
-  const match = await Match.findById(params.id);
+  const match = await Match.findById(id).lean();
 
   if (!match) return { title: "Match Not Found" };
 
@@ -20,8 +21,9 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function MatchPage({ params }) {
+  const { id } = params; // Ensure correct destructuring
   await connectDB();
-  const match = await Match.findById(params.id);
+  const match = await Match.findById(id).lean();
 
   if (!match) notFound();
 
